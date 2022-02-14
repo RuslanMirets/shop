@@ -1,9 +1,6 @@
 import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
-export class CreateUserDto {
-  @IsNotEmpty({ message: 'Введите имя' })
-  name: string;
-
+export class LoginUserDto {
   @IsEmail(undefined, { message: 'Некорректная почта' })
   email: string;
 
