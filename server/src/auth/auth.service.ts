@@ -1,20 +1,25 @@
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserEntity } from './../user/entities/user.entity';
 import { UserService } from './../user/user.service';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService, private jwtService: JwtService) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userService.findByCond({ email, password });
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
+  async validateUser(email: string, hashedPassword: string) {
+    try {
+      const user = await this.userService.findByCond({ email });
+      const comparedPassword = await bcrypt.compare(hashedPassword, user.password);
+      if (user && comparedPassword) {
+        const { password, ...result } = user;
+        return result;
+      }
+    } catch (error) {
+      throw new HttpException('Неверный логин или пароль', HttpStatus.BAD_REQUEST);
     }
-    return null;
   }
 
   generateJwtToken(data: { id: number; email: string }) {
@@ -26,13 +31,14 @@ export class AuthService {
     const { password, ...userData } = user;
     return {
       ...userData,
-      access_token: this.generateJwtToken(userData),
+      token: this.generateJwtToken(userData),
     };
   }
 
   async register(dto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     try {
-      const { password, ...user } = await this.userService.create(dto);
+      const user = await this.userService.create({ ...dto, password: hashedPassword });
       return {
         ...user,
         access_token: this.generateJwtToken(user),
