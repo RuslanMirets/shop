@@ -1,8 +1,10 @@
+import { RoleEntity } from './role/entities/role.entity';
 import { UserEntity } from './user/entities/user.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -13,11 +15,12 @@ import { AuthModule } from './auth/auth.module';
       username: 'postgres',
       password: '123456',
       database: 'shop',
-      entities: [UserEntity],
+      entities: [UserEntity, RoleEntity],
       synchronize: true,
     }),
     UserModule,
     AuthModule,
+    RoleModule,
   ],
   controllers: [],
   providers: [],
