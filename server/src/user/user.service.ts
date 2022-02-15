@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
+import { from } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
   }
 
   findAll() {
-    return this.repository.find();
+    return from(this.repository.find({ relations: ['role'] }));
   }
 
   findById(id: number) {
@@ -24,13 +25,5 @@ export class UserService {
 
   findByCond(cond: LoginUserDto) {
     return this.repository.findOne(cond);
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

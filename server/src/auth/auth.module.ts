@@ -1,3 +1,4 @@
+import { RoleModule } from './../role/role.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UserModule } from './../user/user.module';
@@ -15,6 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
       secret: 'secret',
       signOptions: { expiresIn: '1d' },
     }),
+    RoleModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],

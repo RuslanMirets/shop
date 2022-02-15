@@ -1,3 +1,4 @@
+import { RoleService } from './../role/role.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserEntity } from './../user/entities/user.entity';
 import { UserService } from './../user/user.service';
@@ -7,7 +8,11 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private jwtService: JwtService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+    private roleService: RoleService,
+  ) {}
 
   async validateUser(email: string, hashedPassword: string) {
     try {
@@ -39,6 +44,9 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     try {
       const user = await this.userService.create({ ...dto, password: hashedPassword });
+      const role = await this.roleService.getRoleByValue('USER');
+      user.role = [role];
+      await this.userService.create(user);
       return {
         ...user,
         access_token: this.generateJwtToken(user),

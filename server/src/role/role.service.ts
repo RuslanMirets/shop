@@ -14,7 +14,7 @@ export class RoleService {
   }
 
   async getRoleByValue(value: string) {
-    const role = await this.repository.findOne({where: {value}});
+    const role = await this.repository.findOne({ where: { value } });
     return role;
   }
 }
